@@ -1,30 +1,28 @@
 require('dotenv').config();
+
+const express = require('express');
 const connectDB = require('./config/db');
 
-const productRoutes = require('./routes/productRoutes');
-const express = require('express');
+connectDB();
 
 const app = express();
-const PORT = process.env.PORT || 5000;
 
-// Middleware
+// 🔥 THIS LINE IS VERY IMPORTANT
 app.use(express.json());
 
-// Route
-app.get('/', (req, res) => {
-    res.send('Techlo Electronics API is running...');
-});
+const userRoutes = require('./routes/userRoutes');
+const productRoutes = require('./routes/productRoutes');
 
-
+app.use('/api/users', userRoutes);
 app.use('/api/products', productRoutes);
-// Start Server
-connectDB();
-//error handling middleware
+
 const { notFound, errorHandler } = require('./middleware/errorMiddleware');
 
 app.use(notFound);
 app.use(errorHandler);
 
+const PORT = process.env.PORT || 5000;
+
 app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+  console.log(`Server running on port ${PORT}`);
 });
