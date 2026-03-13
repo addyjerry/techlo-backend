@@ -4,7 +4,6 @@ const Order = require("../models/Order");
 const DELIVERY_FEE = 30;
 
 const createOrder = async (req, res) => {
-
   try {
 
     const {
@@ -36,16 +35,13 @@ const createOrder = async (req, res) => {
 
     // Cash on delivery
     if (paymentMethod === "cod") {
-
       return res.json({
         message: "Order placed successfully",
         order
       });
-
     }
 
     // Paystack initialization
-
     const response = await axios.post(
       "https://api.paystack.co/transaction/initialize",
       {
@@ -73,5 +69,6 @@ const createOrder = async (req, res) => {
     });
 
   }
-
 };
+
+module.exports = { createOrder };
