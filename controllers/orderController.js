@@ -71,4 +71,47 @@ const createOrder = async (req, res) => {
   }
 };
 
-module.exports = { createOrder };
+const verifyPayment = async (req, res) => {
+  try {
+
+    const { reference } = req.params;
+
+    const response = await axios.get(
+      `https://api.paystack.co/transaction/verify/${reference}`,
+      {
+        headers: {
+          Authorization: `Bearer ${process.env.PAYSTACK_SECRET}`
+        }
+      }
+    );
+
+    const data = response.data.data;
+
+    if (data.status === "success") {
+
+      const order = await Order.findByIdAndUpdate(
+        reference,
+        { paymentStatus: "paid" },
+        { new: true }
+      );
+
+      return res.json({
+        message: "Payment verified",
+        order
+      });
+
+    }
+
+    res.status(400).json({
+      message: "Payment not successful"
+    });
+
+  } catch (error) {
+
+    res.status(500).json({
+      message: error.message
+    });
+
+  }
+};
+module.exports = { createOrder, verifyPayment };
