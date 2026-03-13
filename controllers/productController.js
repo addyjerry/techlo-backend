@@ -1,34 +1,61 @@
-const asyncHandler = require('express-async-handler');
 const Product = require('../models/Product');
 
-// GET all products
-const getProducts = asyncHandler(async (req, res) => {
-    const products = await Product.find({});
-    res.json(products);
-});
+const getProducts = async (req, res) => {
+  try {
 
-// POST create product
-const createProduct = asyncHandler(async (req, res) => {
-    const { name, price, brand, description, countInStock } = req.body;
+    const {
+      category,
+      condition,
+      minPrice,
+      maxPrice,
+      search,
+      sort
+    } = req.query;
 
-    if (!name || !price) {
-        res.status(400);
-        throw new Error('Name and Price are required');
+    let filter = {};
+
+    // CATEGORY FILTER
+    if (category) {
+      filter.category = category;
     }
 
-    const product = new Product({
-        name,
-        price,
-        brand,
-        description,
-        countInStock
-    });
+    // CONDITION FILTER
+    if (condition) {
+      filter.condition = condition;
+    }
 
-    const createdProduct = await product.save();
-    res.status(201).json(createdProduct);
-});
+    // PRICE FILTER
+    if (minPrice || maxPrice) {
+      filter.price = {};
+      if (minPrice) filter.price.$gte = Number(minPrice);
+      if (maxPrice) filter.price.$lte = Number(maxPrice);
+    }
 
-module.exports = {
-    getProducts,
-    createProduct
+    // SEARCH (name search)
+    if (search) {
+      filter.name = {
+        $regex: search,
+        $options: "i" // case insensitive
+      };
+    }
+
+    // QUERY DATABASE
+    let query = Product.find(filter);
+
+    // SORTING
+    if (sort) {
+      query = query.sort(sort);
+    } else {
+      query = query.sort('-createdAt'); // newest first
+    }
+
+    const products = await query;
+
+    res.json(products);
+
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
 };
+
+module.exports = { getProducts };

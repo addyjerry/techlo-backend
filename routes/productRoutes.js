@@ -1,23 +1,7 @@
-// const express = require('express');
-// const router = express.Router();
-
-// router.get('/', (req, res) => {
-//     res.json({
-//         message: 'All products fetched successfully'
-//     });
-// });
-
-// module.exports = router;
-
 const express = require('express');
 const router = express.Router();
-const {
-    getProducts,
-    createProduct
-} = require('../controllers/productController');
+const { getProducts } = require('../controllers/productController');
 
-router.route('/')
-    .get(getProducts)
-    .post(createProduct);
+router.get('/', getProducts);
 
 module.exports = router;
