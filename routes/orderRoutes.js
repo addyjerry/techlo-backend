@@ -2,13 +2,8 @@ const express = require("express");
 
 const router = express.Router();
 
-const {
-  createOrder,
-  verifyPayment
-} = require("../controllers/orderController");
+const { createOrder, verifyPayment, getOrders } = require('../controllers/orderController');
 
-router.post("/", createOrder);
-
-router.get("/verify/:reference", verifyPayment);
-
-module.exports = router;
+router.get('/', getOrders);        // ← add this
+router.post('/', createOrder);
+router.get('/verify/:reference', verifyPayment);
